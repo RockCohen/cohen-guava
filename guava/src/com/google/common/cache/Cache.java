@@ -101,6 +101,28 @@ public interface Cache<K, V> {
    * @throws ExecutionError if an error was thrown while loading the value
    * @since 11.0
    */
+  /*
+    返回与此缓存中的键关联的值，必要时从加载器获取该值。
+    该方法改进了传统的“如果有缓存，则返回；否则创建，缓存并返回”模式。
+    为了进一步改进，请使用 LoadingCache的get(K) 方法。
+    此方法和 LoadingCache.get(K) 都提供的改进包括：
+        1.等待待处理负载的结果，而不是启动冗余负载
+        2.消除容易出错的缓存样板
+        3.跟踪负载统计
+    在 LoadingCache 可以提供但此方法不能提供的，需要进一步改进的包括：
+        1.将加载器逻辑整合到一个权威位置
+        2.刷新条目，包括自动刷新
+        3.批量加载请求，包括批量加载实现
+    警告：
+      对于任何给定的键，与它一起使用的每个加载器都应该计算相同的值。
+      否则，通过一个加载器的调用可能会返回具有不同行为加载器的另一个调用的结果。
+      例如，为 RPC 请求短超时的调用可能会等待请求长超时的类似调用，或者非特权用户的调用可能会返回仅对进行类似调用的特权用户可访问的资源。
+      为防止出现此问题，请创建一个包含影响查询结果的所有值的键对象。
+      或者使用 LoadingCache.get(K)，它缺乏引用键中状态以外的状态的能力。
+    警告：
+      与 CacheLoader.load 一样，加载程序不能返回 null；它可能返回非空值或抛出异常。
+      在加载完成之前，不会修改与此缓存关联的可观察状态。
+   */
   @CanIgnoreReturnValue // TODO(b/27479612): consider removing this
   V get(K key, Callable<? extends V> loader) throws ExecutionException;
 
